@@ -47,8 +47,8 @@ $('lg').innerHTML=Object.keys(SC).map(k=>`<span><i style="background:#${SC[k].to
 
 const R=new THREE.WebGLRenderer({canvas:$('c'),antialias:true});R.outputEncoding=THREE.sRGBEncoding;
 const S=new THREE.Scene(),cam=new THREE.PerspectiveCamera(50,1,.1,1000);
-S.add(new THREE.AmbientLight(0xffffff,.35));
-const L=new THREE.DirectionalLight(0xffffff,1.25);L.position.set(60,25,35);S.add(L);
+S.add(new THREE.AmbientLight(0xffffff,.18));
+const L=new THREE.DirectionalLight(0xffffff,1.7);L.position.set(60,25,35);S.add(L);
 (()=>{const a=[];for(let i=0;i<800;i++)a.push(new THREE.Vector3(Math.random()-.5,Math.random()-.5,Math.random()-.5).normalize().multiplyScalar(400));
 S.add(new THREE.Points(new THREE.BufferGeometry().setFromPoints(a),new THREE.PointsMaterial({color:0xffffff,size:1.3})))})();
 
@@ -74,13 +74,13 @@ if(land>.55){c=lerp([40,130,60],[150,130,80],Math.min(1,(land-.55)*3));h=.5+(lan
 else c=lerp(w.pal[0],w.pal[1],n);
 ci.data.set([c[0],c[1],c[2],255],k);const g=h*255;di.data.set([g,g,g,255],k)}
 cx.putImageData(ci,0,0);dx.putImageData(di,0,0);
-return{tex:new THREE.CanvasTexture(cc),dem:{w:Wd,h:Ht,d:di.data}}}
+return{tex:new THREE.CanvasTexture(cc),dem:{w:Wd,h:Ht,d:di.data},bump:dc}}
 
 async function maps(k){const w=W[k];
 if(w.col){try{const[a,b]=await Promise.all([loadImg(w.col),loadImg(w.dem)]);
 const t=new THREE.Texture(a);t.needsUpdate=true;
 const c=cvs(b.width,b.height),x=c.getContext('2d');x.drawImage(b,0,0);
-return{tex:t,dem:{w:c.width,h:c.height,d:x.getImageData(0,0,c.width,c.height).data},real:1}}
+return{tex:t,dem:{w:c.width,h:c.height,d:x.getImageData(0,0,c.width,c.height).data},bump:c,real:1}}
 catch(e){const r=proc(w);r.real=0;return r}}
 return proc(w)}
 
@@ -96,9 +96,9 @@ a.push({i,id:`WD-${k}-${String(i+1).padStart(6,'0')}`,reg,price:Math.round(w.bas
 P[k]=a}
 
 function label(n){const c=cvs(64,64),x=c.getContext('2d');x.fillStyle='#fff';x.font='bold 34px sans-serif';x.textAlign='center';x.textBaseline='middle';x.shadowColor='#000';x.shadowBlur=6;x.fillText(n,32,32);
-const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true}));s.scale.set(1.8,1.8,1);s.renderOrder=5;return s}
+const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true}));s.scale.set(1.1,1.1,1);s.renderOrder=5;return s}
 
-function recolor(pl,on){pl.mesh.material.color.setHex(SC[pl.st]);pl.mesh.material.opacity=on?.85:.45;pl.ln.material.color.setHex(on?0xffffff:SC[pl.st])}
+function recolor(pl,on){pl.mesh.material.color.setHex(SC[pl.st]);pl.mesh.material.opacity=on?.6:.13;pl.ln.material.color.setHex(on?0xffffff:SC[pl.st])}
 
 async function build(k){
 if(busy)return;busy=true;$('ms').textContent='লোড হচ্ছে...';$('p').style.display='none';
@@ -109,14 +109,14 @@ m.tex.encoding=THREE.sRGBEncoding;m.tex.anisotropy=4;
 const g=new THREE.SphereGeometry(RAD,128,64),p=g.attributes.position,uv=g.attributes.uv;
 for(let i=0;i<p.count;i++){const u=uv.getX(i),v=uv.getY(i),q=dir(u,v).multiplyScalar(RAD+(hv(u,v)-.5)*w.relief);p.setXYZ(i,q.x,q.y,q.z)}
 g.computeVertexNormals();
-sph=new THREE.Mesh(g,new THREE.MeshStandardMaterial({map:m.tex,roughness:1,metalness:0}));G.add(sph);
+sph=new THREE.Mesh(g,new THREE.MeshStandardMaterial({map:m.tex,bumpMap:new THREE.CanvasTexture(m.bump),bumpScale:4,roughness:1,metalness:0}));G.add(sph);
 if(w.kind=='island'){G.add(new THREE.Mesh(new THREE.SphereGeometry(RAD+.02,64,32),new THREE.MeshBasicMaterial({color:0x1f6fb5,transparent:true,opacity:.0})))}
 meshes=[sph];
 P[k].forEach(pl=>{const n=4,vs=[],ix=[];
 for(let a=0;a<=n;a++)for(let b=0;b<=n;b++){const q=pos(pl.u0+DU*a/n,pl.v1-DV*b/n,.12,w.relief);vs.push(q.x,q.y,q.z)}
 for(let a=0;a<n;a++)for(let b=0;b<n;b++){const i=a*(n+1)+b;ix.push(i,i+1,i+n+1,i+1,i+n+2,i+n+1)}
 const pg=new THREE.BufferGeometry();pg.setAttribute('position',new THREE.Float32BufferAttribute(vs,3));pg.setIndex(ix);
-const me=new THREE.Mesh(pg,new THREE.MeshBasicMaterial({color:SC[pl.st],transparent:true,opacity:.45,side:THREE.DoubleSide,depthWrite:false}));me.userData.pl=pl;
+const me=new THREE.Mesh(pg,new THREE.MeshBasicMaterial({color:SC[pl.st],transparent:true,opacity:.13,side:THREE.DoubleSide,depthWrite:false}));me.userData.pl=pl;
 const E=[];for(let t=0;t<n;t++)E.push([pl.u0+DU*t/n,pl.v1]);for(let t=0;t<n;t++)E.push([pl.u0+DU,pl.v1-DV*t/n]);
 for(let t=0;t<n;t++)E.push([pl.u0+DU*(1-t/n),pl.v1-DV]);for(let t=0;t<n;t++)E.push([pl.u0,pl.v1-DV*(1-t/n)]);
 const ln=new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(E.map(([u,v])=>pos(u,v,.16,w.relief))),new THREE.LineBasicMaterial({color:SC[pl.st]}));
