@@ -35,10 +35,10 @@ input{width:150px}
 <script>
 const $=id=>document.getElementById(id);
 const W={
-MOON:{n:'চাঁদ / Moon',base:49,relief:1.6,col:'lroc_color_2k.jpg',dem:'ldem_3_8bit.jpg',pal:[[60,60,60],[200,200,200]]},
-ISLAND:{n:'দ্বীপ / Island',base:79,relief:1.2,kind:'island'},
-MARS:{n:'মঙ্গল / Mars',base:59,relief:1.4,pal:[[85,32,18],[205,115,72]]},
-PLANET:{n:'গ্রহ / Planet',base:39,relief:1.2,pal:[[35,18,90],[160,125,235]]}
+MOON:{n:'চাঁদ / Moon',base:49,relief:.5,col:'lroc_color_2k.jpg',dem:'ldem_3_8bit.jpg',pal:[[60,60,60],[200,200,200]]},
+ISLAND:{n:'দ্বীপ / Island',base:79,relief:.6,kind:'island'},
+MARS:{n:'মঙ্গল / Mars',base:59,relief:.6,pal:[[85,32,18],[205,115,72]]},
+PLANET:{n:'গ্রহ / Planet',base:39,relief:.6,pal:[[35,18,90],[160,125,235]]}
 };
 const SC={a:0x22dd66,s:0xee3344,r:0xffcc22,m:0x3b82ff,x:0x888888};
 const SN={a:'Available',s:'Sold',r:'Reserved',m:'My Property',x:'Unavailable'};
@@ -47,8 +47,8 @@ $('lg').innerHTML=Object.keys(SC).map(k=>`<span><i style="background:#${SC[k].to
 
 const R=new THREE.WebGLRenderer({canvas:$('c'),antialias:true});R.outputEncoding=THREE.sRGBEncoding;
 const S=new THREE.Scene(),cam=new THREE.PerspectiveCamera(50,1,.1,1000);
-S.add(new THREE.AmbientLight(0xffffff,.18));
-const L=new THREE.DirectionalLight(0xffffff,1.7);L.position.set(60,25,35);S.add(L);
+S.add(new THREE.AmbientLight(0xffffff,.3));
+const L=new THREE.DirectionalLight(0xffffff,1.4);L.position.set(60,25,35);S.add(L);
 (()=>{const a=[];for(let i=0;i<800;i++)a.push(new THREE.Vector3(Math.random()-.5,Math.random()-.5,Math.random()-.5).normalize().multiplyScalar(400));
 S.add(new THREE.Points(new THREE.BufferGeometry().setFromPoints(a),new THREE.PointsMaterial({color:0xffffff,size:1.3})))})();
 
@@ -109,7 +109,7 @@ m.tex.encoding=THREE.sRGBEncoding;m.tex.anisotropy=4;
 const g=new THREE.SphereGeometry(RAD,128,64),p=g.attributes.position,uv=g.attributes.uv;
 for(let i=0;i<p.count;i++){const u=uv.getX(i),v=uv.getY(i),q=dir(u,v).multiplyScalar(RAD+(hv(u,v)-.5)*w.relief);p.setXYZ(i,q.x,q.y,q.z)}
 g.computeVertexNormals();
-sph=new THREE.Mesh(g,new THREE.MeshStandardMaterial({map:m.tex,bumpMap:new THREE.CanvasTexture(m.bump),bumpScale:4,roughness:1,metalness:0}));G.add(sph);
+sph=new THREE.Mesh(g,new THREE.MeshStandardMaterial({map:m.tex,roughness:1,metalness:0}));G.add(sph);
 if(w.kind=='island'){G.add(new THREE.Mesh(new THREE.SphereGeometry(RAD+.02,64,32),new THREE.MeshBasicMaterial({color:0x1f6fb5,transparent:true,opacity:.0})))}
 meshes=[sph];
 P[k].forEach(pl=>{const n=4,vs=[],ix=[];
